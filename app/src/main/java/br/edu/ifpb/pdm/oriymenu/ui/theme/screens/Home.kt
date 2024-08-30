@@ -54,10 +54,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onNewDishClick: () -> Unit,
     onEditDishClick: (String) -> Unit
 ) {
     val dishes = remember { mutableStateListOf<Dish>() }
+    val scope = rememberCoroutineScope()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,16 +69,13 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
         // FIXME: this button will be removed in the future as it is only for testing purposes
         // the data will be fetched from the database automatically
-        Button(onClick = {
-            onNewDishClick()
-        }) {
-            Text("Novo prato")
-        }
         OutlinedButton(onClick = {
-            DishDAO().findAll(callback = {
-                dishes.clear()
-                dishes.addAll(it)
-            })
+            scope.launch(Dispatchers.IO) {
+                DishDAO().findAll(callback = {
+                    dishes.clear()
+                    dishes.addAll(it)
+                })
+            }
         }) {
             Text(text = "Listar pratos")
         }

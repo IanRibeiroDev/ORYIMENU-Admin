@@ -68,35 +68,10 @@ fun MainApp() {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("ORYI Menu - admin")
+                    Text("ORYI - Admin")
                 },
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-        },
-        bottomBar = {
-            val currentDestination = navBackStackEntry?.destination?.route
-            if (checkIfBottomBarShouldBeDisplayed(currentDestination)) {
-                BottomAppBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    actions = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            IconButtonWithText(
-                                onClick = {
-                                    navController.navigate("home")
-                                },
-                                contentDescription = "Home",
-                                icon = Icons.Default.Refresh,
-                                buttonText = "Listar"
-                            )
-                        }
-                    }
-                )
-            }
         },
         floatingActionButton = {
             val currentDestination = navBackStackEntry?.destination?.route
@@ -121,9 +96,7 @@ fun MainApp() {
                 })
             }
             composable("home") {
-                HomeScreen(modifier = Modifier.padding(innerPadding), onNewDishClick = {
-                    navController.navigate("registerDish")
-                }, onEditDishClick = { dish ->
+                HomeScreen(modifier = Modifier.padding(innerPadding), onEditDishClick = { dish ->
                     navController.navigate("registerDish?dish=$dish")
                 })
             }

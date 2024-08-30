@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -47,6 +48,7 @@ fun RegisterDish(
     var pathToImage by remember { mutableStateOf(dish?.pathToImage ?: "") }
 
     val scope = rememberCoroutineScope()
+    val fieldSize = 300.dp
 
     Column(
         modifier = modifier
@@ -68,6 +70,7 @@ fun RegisterDish(
         }
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
+            modifier = Modifier.width(fieldSize),
             value = name,
             onValueChange = { name = it },
             label = { Text(text = "Nome") },
@@ -76,6 +79,7 @@ fun RegisterDish(
         )
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
+            modifier = Modifier.width(fieldSize),
             value = description,
             onValueChange = { description = it },
             label = { Text(text = "Descrição") },
@@ -83,6 +87,7 @@ fun RegisterDish(
         )
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
+            modifier = Modifier.width(fieldSize),
             value = meal,
             onValueChange = { meal = it },
             label = { Text(text = "Refeição") },
@@ -91,6 +96,7 @@ fun RegisterDish(
         )
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
+            modifier = Modifier.width(fieldSize),
             value = pathToImage,
             onValueChange = { pathToImage = it },
             label = { Text(text = "Imagem") },
