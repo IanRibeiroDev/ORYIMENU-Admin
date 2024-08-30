@@ -1,21 +1,31 @@
 package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
 
 
+import android.graphics.drawable.Icon
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,58 +45,58 @@ import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.Menu
 import br.edu.ifpb.pdm.oriymenu.model.data.MenuDAO
+import br.edu.ifpb.pdm.oriymenu.ui.theme.components.AlertDialogComponent
 import coil.compose.AsyncImage
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.Date
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val dishDAO = DishDAO()
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onEditDishClick: (String) -> Unit
+) {
     val dishes = remember { mutableStateListOf<Dish>() }
+    val scope = rememberCoroutineScope()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        DishCard(
-            imageRes = R.drawable.espaguete,
-            name = "Spaghetti Carbonara",
-            description = "Delicioso espaguete com molho carbonara e pedaços crocantes de bacon.",
-            dishes = dishes
-        )
+        DishCard(dishes = dishes, onEditDishClick = onEditDishClick)
         Spacer(modifier = Modifier.height(16.dp))
         // FIXME: this button will be removed in the future as it is only for testing purposes
         // the data will be fetched from the database automatically
-        Button(onClick = {
+        OutlinedButton(onClick = {
             scope.launch(Dispatchers.IO) {
-                dishDAO.findAll(callback = { returnedDishes ->
+                DishDAO().findAll(callback = {
                     dishes.clear()
-                    dishes.addAll(returnedDishes)
+                    dishes.addAll(it)
                 })
             }
         }) {
-            Text("Mostrar cardápio")
+            Text(text = "Listar pratos")
         }
     }
 }
 
 @Composable
 fun DishCard(
-    imageRes: Int,
-    name: String,
-    description: String,
-    dishes: List<Dish>
+    dishes: List<Dish>,
+    onEditDishClick: (String) -> Unit
 ) {
+
+    // state to control the dialog
+    val openAlertDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val menuDAO = MenuDAO()
-    var menu by remember { mutableStateOf(Menu()) }
+    // store the dishes in a mutable list to be able to remove them
+    val dishesState = remember { mutableStateListOf<Dish>() }
+    dishesState.addAll(dishes)
 
     LazyColumn {
-        items(dishes) { dish ->
+        items(dishesState) { dish ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -118,6 +128,54 @@ fun DishCard(
                         text = dish.description,
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row {
+                        OutlinedButton(onClick = {
+                            // JSON logic to pass the dish object as a string to the RegisterDish screen
+                            val selectedDish = Gson().toJson(dish)
+                            onEditDishClick(selectedDish)
+                        }) {
+                            Text(text = "Editar")
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "Editar"
+                            )
+                        }
+                        Spacer(modifier = Modifier.size(4.dp))
+                        OutlinedButton(onClick = {
+                            openAlertDialog.value = true
+                        }) {
+                            Text(text = "Excluir")
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Excluir"
+                            )
+                        }
+                    }
+                }
+            }
+            when {
+                openAlertDialog.value -> {
+                    AlertDialogComponent(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            openAlertDialog.value = false
+                            scope.launch(Dispatchers.IO) {
+                                DishDAO().delete(dish = dish, callback = {
+                                    dishesState.remove(dish)
+                                    Log.d("HomeScreen", "Dish removed: $it")
+                                })
+                            }
+                        },
+                        dialogTitle = "Remoção de prato",
+                        dialogText = "Você tem certeza que deseja remover o prato?",
+                        icon = Icons.Default.Info
                     )
                 }
             }

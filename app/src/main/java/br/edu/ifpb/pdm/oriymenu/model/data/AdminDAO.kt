@@ -6,6 +6,7 @@ import com.google.firebase.firestore.firestore
 class AdminDAO {
 
     private val db = Firebase.firestore
+    private val dbEntityName = "admin"
 
     /**
      * Find an admin by its id
@@ -13,7 +14,7 @@ class AdminDAO {
      * @param callback function that will receive the admin
      */
     fun findById(id: String, callback: (Admin?) -> Unit) {
-        db.collection("administrador").document(id).get()
+        db.collection(dbEntityName).document(id).get()
             .addOnSuccessListener { document ->
                 val admin = document.toObject(Admin::class.java)
                 callback(admin)
@@ -29,7 +30,7 @@ class AdminDAO {
      * @param callback function that will receive the admin
      */
     fun findByEmail(email: String, callback: (Admin?) -> Unit) {
-        db.collection("administrador").whereEqualTo("email", email).get()
+        db.collection(dbEntityName).whereEqualTo("email", email).get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
                     callback(null)
