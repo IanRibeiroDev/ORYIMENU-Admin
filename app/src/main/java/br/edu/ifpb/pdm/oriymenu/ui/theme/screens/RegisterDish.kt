@@ -1,5 +1,6 @@
 package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
@@ -30,16 +33,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
+fun RegisterDish(
+    modifier: Modifier = Modifier,
+    dish: Dish? = null,
+    onRegisterClick: () -> Unit,
+    onGoBackButton: () -> Unit,
+    navController: NavController
+) {
 
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var meal by remember { mutableStateOf("") }
-    var pathToImage by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(dish?.name ?: "") }
+    var description by remember { mutableStateOf(dish?.description ?: "") }
+    var meal by remember { mutableStateOf(dish?.meal ?: "") }
+    var pathToImage by remember { mutableStateOf(dish?.pathToImage ?: "") }
 
     val scope = rememberCoroutineScope()
-
-    val enrollmentDigitLimit = 7
 
     Column(
         modifier = modifier
@@ -53,7 +60,7 @@ fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
                 .padding(start = 50.dp)
         ) {
             Text(
-                text = "Novo prato",
+                text = if (dish != null) "Atualizar prato" else "Cadastrar prato",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
@@ -64,7 +71,8 @@ fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
             value = name,
             onValueChange = { name = it },
             label = { Text(text = "Nome") },
-            placeholder = { Text(text = "O nome do prato") }
+            placeholder = { Text(text = "O nome do prato") },
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
@@ -78,14 +86,16 @@ fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
             value = meal,
             onValueChange = { meal = it },
             label = { Text(text = "Refeição") },
-            placeholder = { Text(text = "Almoço ou café da manhã") }
+            placeholder = { Text(text = "Almoço ou café da manhã") },
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = pathToImage,
             onValueChange = { pathToImage = it },
             label = { Text(text = "Imagem") },
-            placeholder = { Text(text = "URL para a imagem do prato") }
+            placeholder = { Text(text = "URL para a imagem do prato") },
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(6.dp))
         Button(onClick = {
@@ -96,17 +106,33 @@ fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
                 pathToImage = pathToImage
             )
             // TODO: implement validation logic later
-            scope.launch(Dispatchers.IO) {
-                DishDAO().save(dish = newDish, callback = {
-                    if (it) {  // If the dish was successfully saved
-                        onRegisterClick()
-                    }
-                })
+            if (dish != null) {  // update an existing dish
+                newDish.id = dish.id
+                Log.d("RegisterDish", "Updating dish: $newDish")
+                scope.launch(Dispatchers.IO) {
+                    DishDAO().update(dish = newDish, callback = {
+                        if (it) {  // If the dish was successfully updated
+                            onRegisterClick()
+                        }
+                    })
+                }
+            } else {  // insert a new dish
+                scope.launch(Dispatchers.IO) {
+                    DishDAO().save(dish = newDish, callback = {
+                        if (it) {  // If the dish was successfully saved
+                            onRegisterClick()
+                        }
+                    })
+                }
             }
             // After successful registration logic
-            onRegisterClick()
         }) {
-            Text(text = "Adicionar")
+            Text(text = if (dish != null) "Atualizar" else "Cadastrar")
+        }
+        OutlinedButton(onClick = {
+            onGoBackButton()
+        }) {
+            Text(text = "Voltar")
         }
     }
 }
@@ -115,6 +141,6 @@ fun RegisterDish(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
 @Composable
 fun RegisterScreenPreview() {
     OriymenuTheme {
-        RegisterDish(onRegisterClick = {})
+//        RegisterDish(onRegisterClick = {}, onGoBackButton = {})
     }
 }

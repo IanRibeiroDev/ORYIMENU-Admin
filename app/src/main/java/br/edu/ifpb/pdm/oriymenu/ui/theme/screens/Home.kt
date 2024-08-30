@@ -1,7 +1,9 @@
 package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
 
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,10 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.edu.ifpb.pdm.oriymenu.R
@@ -33,9 +42,14 @@ import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.Menu
 import br.edu.ifpb.pdm.oriymenu.model.data.MenuDAO
 import coil.compose.AsyncImage
+import com.google.gson.Gson
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onNewDishClick: () -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onNewDishClick: () -> Unit,
+    onEditDishClick: (String) -> Unit
+) {
     val dishes = remember { mutableStateListOf<Dish>() }
 
     Column(
@@ -44,12 +58,7 @@ fun HomeScreen(modifier: Modifier = Modifier, onNewDishClick: () -> Unit) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        DishCard(
-            imageRes = R.drawable.espaguete,
-            name = "Spaghetti Carbonara",
-            description = "Delicioso espaguete com molho carbonara e pedaços crocantes de bacon.",
-            dishes = dishes
-        )
+        DishCard(dishes = dishes, onEditDishClick = onEditDishClick)
         Spacer(modifier = Modifier.height(16.dp))
         // FIXME: this button will be removed in the future as it is only for testing purposes
         // the data will be fetched from the database automatically
@@ -58,8 +67,11 @@ fun HomeScreen(modifier: Modifier = Modifier, onNewDishClick: () -> Unit) {
         }) {
             Text("Novo prato")
         }
-        Button(onClick = {
-            DishDAO.findAll
+        OutlinedButton(onClick = {
+            DishDAO().findAll(callback = {
+                dishes.clear()
+                dishes.addAll(it)
+            })
         }) {
             Text(text = "Listar pratos")
         }
@@ -68,14 +80,9 @@ fun HomeScreen(modifier: Modifier = Modifier, onNewDishClick: () -> Unit) {
 
 @Composable
 fun DishCard(
-    imageRes: Int,
-    name: String,
-    description: String,
-    dishes: List<Dish>
+    dishes: List<Dish>,
+    onEditDishClick: (String) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    val menuDAO = MenuDAO()
-    var menu by remember { mutableStateOf(Menu()) }
 
     LazyColumn {
         items(dishes) { dish ->
@@ -111,6 +118,25 @@ fun DishCard(
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 14.sp
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row {
+                        OutlinedButton(onClick = {
+                            // JSON logic to pass the dish object as a string to the RegisterDish screen
+                            val selectedDish = Gson().toJson(dish)
+                            onEditDishClick(selectedDish)
+                        }) {
+                            Text(text = "Editar")
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "Editar"
+                            )
+                        }
+                    }
                 }
             }
         }
