@@ -94,9 +94,12 @@ fun DishCard(
     // state to control the dialog
     val openAlertDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    // store the dishes in a mutable list to be able to remove them
+    val dishesState = remember { mutableStateListOf<Dish>() }
+    dishesState.addAll(dishes)
 
     LazyColumn {
-        items(dishes) { dish ->
+        items(dishesState) { dish ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -168,6 +171,7 @@ fun DishCard(
                             openAlertDialog.value = false
                             scope.launch(Dispatchers.IO) {
                                 DishDAO().delete(dish = dish, callback = {
+                                    dishesState.remove(dish)
                                     Log.d("HomeScreen", "Dish removed: $it")
                                 })
                             }
