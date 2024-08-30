@@ -4,25 +4,38 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
+import br.edu.ifpb.pdm.oriymenu.ui.theme.components.IconButtonWithText
 import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.HomeScreen
 import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.LoginScreen
 import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.RegisterDish
@@ -44,6 +57,9 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp() {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,13 +68,48 @@ fun MainApp() {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("ORYI Menu")
+                    Text("ORYI Menu - admin")
                 },
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-        }, modifier = Modifier.fillMaxSize()
+        },
+        bottomBar = {
+            val currentDestination = navBackStackEntry?.destination?.route
+            if (checkIfBottomBarShouldBeDisplayed(currentDestination)) {
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    actions = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            IconButtonWithText(
+                                onClick = {
+                                    navController.navigate("home")
+                                },
+                                contentDescription = "Home",
+                                icon = Icons.Default.Refresh,
+                                buttonText = "Listar"
+                            )
+                        }
+                    }
+                )
+            }
+        },
+        floatingActionButton = {
+            val currentDestination = navBackStackEntry?.destination?.route
+            if (checkIfBottomBarShouldBeDisplayed(currentDestination)) {
+                FloatingActionButton(onClick = {
+                    navController.navigate("registerDish")
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Adicionar prato")
+                }
+            }
+        },
+        modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        val navController = rememberNavController()
 
         // Lambda to navigate to the home screen
         val navigateToHome = { navController.navigate("home") }
@@ -114,6 +165,18 @@ fun MainApp() {
                     })
             }
         }
+    }
+}
+
+/**
+ * Function to check if the bottom bar should be displayed based on the current destination
+ * @param currentDestination The current destination of the app
+ * @return Boolean value indicating if the bottom bar should be displayed
+ */
+private fun checkIfBottomBarShouldBeDisplayed(currentDestination: String?): Boolean {
+    return when (currentDestination) {
+        "login" -> false
+        else -> true
     }
 }
 

@@ -13,13 +13,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(onSignInClick: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    val adminDAO = AdminDAO()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -32,7 +39,7 @@ fun LoginScreen(onSignInClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "ORYI",
+                text = "ORYI - Admin",
                 modifier = Modifier
                     .padding(bottom = 16.dp)
                     .fillMaxWidth(),
@@ -46,6 +53,7 @@ fun LoginScreen(onSignInClick: () -> Unit) {
                 value = username,
                 onValueChange = { username = it },
                 label = { Text(text = "Usuário") },
+                placeholder = { Text(text = "Digite o seu email") },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .padding(bottom = 8.dp)
@@ -62,10 +70,14 @@ fun LoginScreen(onSignInClick: () -> Unit) {
             )
             Button(
                 onClick = {
-                    if (username == password) {
-                        onSignInClick()
-                    } else {
-                        errorMessage = "Login ou Senha inválidos!"
+                    scope.launch(Dispatchers.IO) {
+                        adminDAO.findByEmail(username, callback = { admin ->
+                            if (admin != null && admin.password == password) {
+                                onSignInClick()
+                            } else {
+                                errorMessage = "Login ou Senha inválidos!"
+                            }
+                        })
                     }
                 },
                 modifier = Modifier.fillMaxWidth(0.8f),
