@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "73441147515",
+    "project_id": "oryi-66dfb",
+    "storage_bucket": "oryi-66dfb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73441147515:android:8d177181f94b09dbf200de",
+        "android_client_info": {
+          "package_name": "br.edu.ifpb.pdm.oriymenu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBot6HSpyb1lYw9TvJtf0q82uRA2XjMzm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
