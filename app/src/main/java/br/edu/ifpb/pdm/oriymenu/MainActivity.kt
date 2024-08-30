@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
 import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.HomeScreen
 import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.LoginScreen
+import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.RegisterDish
 
 
 class MainActivity : ComponentActivity() {
@@ -61,8 +62,13 @@ fun MainApp() {
                 })
             }
             composable("home") {
-                HomeScreen(modifier = Modifier.padding(innerPadding), onLogoffClick = {
-                    navController.navigate("login")
+                HomeScreen(modifier = Modifier.padding(innerPadding), onNewDishClick = {
+                    navController.navigate("registerDish")
+                })
+            }
+            composable("registerDish") {
+                RegisterDish(modifier = Modifier.padding(innerPadding), onRegisterClick = {
+                    navController.navigate("home")
                 })
             }
         }

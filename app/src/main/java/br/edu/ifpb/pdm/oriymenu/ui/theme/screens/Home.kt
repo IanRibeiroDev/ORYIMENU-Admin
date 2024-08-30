@@ -1,8 +1,6 @@
 package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
 
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.edu.ifpb.pdm.oriymenu.R
@@ -36,16 +33,11 @@ import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.Menu
 import br.edu.ifpb.pdm.oriymenu.model.data.MenuDAO
 import coil.compose.AsyncImage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.Date
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val dishDAO = DishDAO()
+fun HomeScreen(modifier: Modifier = Modifier, onNewDishClick: () -> Unit) {
     val dishes = remember { mutableStateListOf<Dish>() }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -62,14 +54,14 @@ fun HomeScreen(modifier: Modifier = Modifier, onLogoffClick: () -> Unit) {
         // FIXME: this button will be removed in the future as it is only for testing purposes
         // the data will be fetched from the database automatically
         Button(onClick = {
-            scope.launch(Dispatchers.IO) {
-                dishDAO.findAll(callback = { returnedDishes ->
-                    dishes.clear()
-                    dishes.addAll(returnedDishes)
-                })
-            }
+            onNewDishClick()
         }) {
-            Text("Mostrar cardápio")
+            Text("Novo prato")
+        }
+        Button(onClick = {
+            DishDAO.findAll
+        }) {
+            Text(text = "Listar pratos")
         }
     }
 }
