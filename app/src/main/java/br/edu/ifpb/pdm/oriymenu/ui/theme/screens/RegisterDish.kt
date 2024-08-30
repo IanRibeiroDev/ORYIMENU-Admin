@@ -108,7 +108,7 @@ fun RegisterDish(
             // TODO: implement validation logic later
             if (dish != null) {  // update an existing dish
                 newDish.id = dish.id
-                Log.d("RegisterDish", "Updating dish: $newDish")
+
                 scope.launch(Dispatchers.IO) {
                     DishDAO().update(dish = newDish, callback = {
                         if (it) {  // If the dish was successfully updated

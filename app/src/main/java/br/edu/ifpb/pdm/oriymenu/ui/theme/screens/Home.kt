@@ -2,6 +2,7 @@ package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
 
 
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,8 +45,11 @@ import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.Menu
 import br.edu.ifpb.pdm.oriymenu.model.data.MenuDAO
+import br.edu.ifpb.pdm.oriymenu.ui.theme.components.AlertDialogComponent
 import coil.compose.AsyncImage
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -84,6 +91,10 @@ fun DishCard(
     onEditDishClick: (String) -> Unit
 ) {
 
+    // state to control the dialog
+    val openAlertDialog = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     LazyColumn {
         items(dishes) { dish ->
             Card(
@@ -123,7 +134,7 @@ fun DishCard(
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Row {
                         OutlinedButton(onClick = {
                             // JSON logic to pass the dish object as a string to the RegisterDish screen
@@ -136,7 +147,35 @@ fun DishCard(
                                 contentDescription = "Editar"
                             )
                         }
+                        Spacer(modifier = Modifier.size(4.dp))
+                        OutlinedButton(onClick = {
+                            openAlertDialog.value = true
+                        }) {
+                            Text(text = "Excluir")
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Excluir"
+                            )
+                        }
                     }
+                }
+            }
+            when {
+                openAlertDialog.value -> {
+                    AlertDialogComponent(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            openAlertDialog.value = false
+                            scope.launch(Dispatchers.IO) {
+                                DishDAO().delete(dish = dish, callback = {
+                                    Log.d("HomeScreen", "Dish removed: $it")
+                                })
+                            }
+                        },
+                        dialogTitle = "Remoção de prato",
+                        dialogText = "Você tem certeza que deseja remover o prato?",
+                        icon = Icons.Default.Info
+                    )
                 }
             }
         }
