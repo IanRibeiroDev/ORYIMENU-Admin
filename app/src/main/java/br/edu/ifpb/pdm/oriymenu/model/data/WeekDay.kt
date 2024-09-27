@@ -1,11 +1,10 @@
 package br.edu.ifpb.pdm.oriymenu.model.data
 
 import com.google.firebase.firestore.DocumentId
-import java.util.Date
 
-data class Menu(
+data class WeekDay(
     @DocumentId
     val id: String = "",
-    val date: Date? = null,
-    var dishes: List<Int> = emptyList()
+    val name: String = "",
+    var dishes: List<String> = emptyList()
 )
