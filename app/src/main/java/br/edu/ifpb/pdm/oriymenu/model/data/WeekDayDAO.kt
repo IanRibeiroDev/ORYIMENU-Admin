@@ -9,6 +9,16 @@ class WeekDayDAO {
     private val db = Firebase.firestore
     private val dayOfWeekRef = db.collection("dayOfWeek")
 
+    fun update(dayOfWeek: WeekDay, callback: (WeekDay?) -> Unit) {
+        dayOfWeekRef.document(dayOfWeek.id).set(dayOfWeek)
+            .addOnSuccessListener {
+                callback(dayOfWeek)
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
+
     /**
      * Get all days of the week and their dishes from the database
      * @param callback function that will receive the list of days of the week
@@ -24,6 +34,11 @@ class WeekDayDAO {
             }
     }
 
+    /**
+     * Get the day of the week by its name
+     * @param name the name of the day of the week
+     * @param callback function that will receive the day of the week
+     */
     fun findByDayOfWeek(name: String, callback: (WeekDay?) -> Unit) {
         dayOfWeekRef.whereEqualTo("name", name).get()
             .addOnSuccessListener { weekDay ->
