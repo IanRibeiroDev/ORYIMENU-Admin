@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,10 +27,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.model.data.DishDAO
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
+import br.edu.ifpb.pdm.oriymenu.ui.theme.viewmodels.RegisterDishViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -37,15 +40,23 @@ import kotlinx.coroutines.launch
 fun RegisterDish(
     modifier: Modifier = Modifier,
     dish: Dish? = null,
+    registerDishViewModel: RegisterDishViewModel = viewModel(),
     onRegisterClick: () -> Unit,
     onGoBackButton: () -> Unit,
     navController: NavController
 ) {
 
-    var name by remember { mutableStateOf(dish?.name ?: "") }
-    var description by remember { mutableStateOf(dish?.description ?: "") }
-    var meal by remember { mutableStateOf(dish?.meal ?: "") }
-    var pathToImage by remember { mutableStateOf(dish?.pathToImage ?: "") }
+    // State for the dish name, description, meal type, and image path
+    val name by registerDishViewModel.name.collectAsState()
+    val description by registerDishViewModel.description.collectAsState()
+    val meal by registerDishViewModel.meal.collectAsState()
+    val pathToImage by registerDishViewModel.pathToImage.collectAsState()
+    // the day of the week selected in the dropdown
+    val dayOfWeek by registerDishViewModel.selectedDayOfWeek.collectAsState()
+//    var name by remember { mutableStateOf(dish?.name ?: "") }
+//    var description by remember { mutableStateOf(dish?.description ?: "") }
+//    var meal by remember { mutableStateOf(dish?.meal ?: "") }
+//    var pathToImage by remember { mutableStateOf(dish?.pathToImage ?: "") }
 
     val scope = rememberCoroutineScope()
     val fieldSize = 300.dp
@@ -72,7 +83,8 @@ fun RegisterDish(
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
             value = name,
-            onValueChange = { name = it },
+//            onValueChange = { name = it },
+            onValueChange = { registerDishViewModel.updateName(it) },
             label = { Text(text = "Nome") },
             placeholder = { Text(text = "O nome do prato") },
             singleLine = true
@@ -81,7 +93,8 @@ fun RegisterDish(
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
             value = description,
-            onValueChange = { description = it },
+//            onValueChange = { description = it },
+            onValueChange = { registerDishViewModel.updateDescription(it) },
             label = { Text(text = "Descrição") },
             placeholder = { Text(text = "Uma breve descrição sobre o prato") }
         )
@@ -89,7 +102,8 @@ fun RegisterDish(
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
             value = meal,
-            onValueChange = { meal = it },
+//            onValueChange = { meal = it },
+            onValueChange = { registerDishViewModel.updateMeal(it) },
             label = { Text(text = "Refeição") },
             placeholder = { Text(text = "Almoço ou café da manhã") },
             singleLine = true
@@ -98,7 +112,8 @@ fun RegisterDish(
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
             value = pathToImage,
-            onValueChange = { pathToImage = it },
+//            onValueChange = { pathToImage = it },
+            onValueChange = { registerDishViewModel.updatePathToImage(it) },
             label = { Text(text = "Imagem") },
             placeholder = { Text(text = "URL para a imagem do prato") },
             singleLine = true

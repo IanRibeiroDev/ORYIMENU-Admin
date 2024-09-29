@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +62,7 @@ import br.edu.ifpb.pdm.oriymenu.ui.theme.viewmodels.RegisterDishViewModel
 import coil.compose.AsyncImage
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -71,7 +73,9 @@ fun HomeScreen(
 ) {
     val scope = rememberCoroutineScope()
     val dishes by menuViewModel.dishes.collectAsState()
+
     val namesOfDaysOfWeek = menuViewModel.namesOfDaysOfWeek
+    val mealTypes = menuViewModel.mealTypes  // 0 -> breakfast, 1 -> lunch
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,11 +83,44 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        SelectComponent(modifier, elements = namesOfDaysOfWeek, onSelect = { index ->
-            scope.launch(Dispatchers.IO) {
-                menuViewModel.fetchByDayOfWeek(namesOfDaysOfWeek[index])
+        Row {
+            // Select the day of the week
+            Column {
+                Text(text = "Dia da semana")
+                SelectComponent(
+                    elements = namesOfDaysOfWeek,
+                    isDropDownExpanded = menuViewModel.isDayDropdownExpanded,
+                    onShowDropDown = { menuViewModel.showDayDropdown() },
+                    onCollapseDropDown = { menuViewModel.collapseDayDropdown() },
+                    currentElementIndex = menuViewModel.selectedDayIndex,
+                    onSelect = { index ->
+                        menuViewModel.changeSelectedDayIndex(index)
+                        scope.launch(Dispatchers.IO) {
+                            menuViewModel.fetchByDayOfWeek(namesOfDaysOfWeek[index])
+                        }
+                    })
             }
-        })
+            Spacer(modifier = Modifier.width(16.dp))
+            // Select the meal
+            Column {
+                Text(text = "Refeição")
+                SelectComponent(
+                    elements = mealTypes,
+                    isDropDownExpanded = menuViewModel.isMealDropDownExpanded,
+                    onShowDropDown = { menuViewModel.showMealDropdown() },
+                    onCollapseDropDown = { menuViewModel.collapseMealDropdown() },
+                    currentElementIndex = menuViewModel.selectedMealIndex,
+                    onSelect = { index ->
+                        scope.launch(Dispatchers.IO) {
+                            // Fetch dishes by selected day and meal type
+                            menuViewModel.changeSelectedMealIndex(index)
+                            val selectedDay = namesOfDaysOfWeek[
+                                menuViewModel.selectedDayIndex.value]
+                            menuViewModel.fetchByDayOfWeekAndMeal(selectedDay, mealTypes[index])
+                        }
+                    })
+            }
+        }
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -154,7 +191,7 @@ fun DishCard(
                             // JSON logic to pass the dish object as a string to the RegisterDish screen
                             val selectedDish = Gson().toJson(dish)
                             registerDishViewModel.updateSelectedDayOfWeek(
-                                namesOfDaysOfWeek[menuViewModel.selectedElementIndex.value]
+                                namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value]
                             )
                             onEditDishClick(selectedDish)
                         }) {
@@ -187,7 +224,7 @@ fun DishCard(
                                 // Remove the dish from the day of the week
                                 menuViewModel.removeDishFromDayOfWeek(
                                     namesOfDaysOfWeek[
-                                        menuViewModel.selectedElementIndex.value], dish)
+                                        menuViewModel.selectedDayIndex.value], dish)
                             }
                         },
                         dialogTitle = "Remoção de prato",
@@ -200,15 +237,67 @@ fun DishCard(
     }
 }
 
+//@Composable
+//fun SelectComponent(
+//    modifier: Modifier = Modifier,
+//    elements: List<String>,
+//    menuViewModel: MenuViewModel = viewModel(),
+//    onSelect: (Int) -> Unit,
+//) {
+//    val isDropDownExpanded by menuViewModel.isDropDownExpanded.collectAsState()
+//    val currentDayIndex by menuViewModel.selectedElementIndex.collectAsState()
+//
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        Box {
+//            Row(
+//                horizontalArrangement = Arrangement.Center,
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.clickable {
+//                    menuViewModel.showDropDown()
+//                }
+//                    .padding(12.dp)
+//            ) {
+//                Text(text = elements[currentDayIndex])
+//                Image(
+//                    painter = painterResource(id = R.drawable.arrow_drop_down),
+//                    contentDescription = "Arrow Drop Down"
+//                )
+//            }
+//        }
+//        DropdownMenu(
+//            modifier = Modifier.padding(horizontal = 16.dp),
+//            expanded = isDropDownExpanded,
+//            onDismissRequest = {
+//                menuViewModel.collapseDropDown()
+//            }
+//        ) {
+//            elements.forEachIndexed { index, name ->
+//                DropdownMenuItem(text = {
+//                    Text(text = name)
+//                },
+//                    onClick = {
+//                        menuViewModel.collapseDropDown()
+//                        menuViewModel.changeSelectedElementIndex(index)
+//                        onSelect(index)
+//                    })
+//            }
+//        }
+//    }
+//}
 @Composable
 fun SelectComponent(
-    modifier: Modifier = Modifier,
     elements: List<String>,
-    menuViewModel: MenuViewModel = viewModel(),
+    isDropDownExpanded: StateFlow<Boolean>,
+    onShowDropDown: () -> Unit,
+    onCollapseDropDown: () -> Unit,
+    currentElementIndex: StateFlow<Int>,
     onSelect: (Int) -> Unit,
 ) {
-    val isDropDownExpanded by menuViewModel.isDropDownExpanded.collectAsState()
-    val currentDayIndex by menuViewModel.selectedElementIndex.collectAsState()
+    val isExpanded by isDropDownExpanded.collectAsState()
+    val currentIndex by currentElementIndex.collectAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -218,12 +307,13 @@ fun SelectComponent(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    menuViewModel.showDropDown()
-                }
+                modifier = Modifier
+                    .clickable {
+                        onShowDropDown()
+                    }
                     .padding(12.dp)
             ) {
-                Text(text = elements[currentDayIndex])
+                Text(text = elements[currentIndex])
                 Image(
                     painter = painterResource(id = R.drawable.arrow_drop_down),
                     contentDescription = "Arrow Drop Down"
@@ -232,9 +322,9 @@ fun SelectComponent(
         }
         DropdownMenu(
             modifier = Modifier.padding(horizontal = 16.dp),
-            expanded = isDropDownExpanded,
+            expanded = isExpanded,
             onDismissRequest = {
-                menuViewModel.collapseDropDown()
+                onCollapseDropDown()
             }
         ) {
             elements.forEachIndexed { index, name ->
@@ -242,8 +332,7 @@ fun SelectComponent(
                     Text(text = name)
                 },
                     onClick = {
-                        menuViewModel.collapseDropDown()
-                        menuViewModel.changeSelectedElementIndex(index)
+                        onCollapseDropDown()
                         onSelect(index)
                     })
             }
