@@ -146,7 +146,7 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address.complemento,
+            value = number,
             onValueChange = { registerAdminViewModel.updateNumber(it) },
             label = { Text(text = "Número") },
             placeholder = { Text(text = "Digite o número do seu logradouro") },
@@ -184,30 +184,18 @@ fun RegisterAdmin(
         Spacer(modifier = Modifier.height(6.dp))
 
         Button(onClick = {
-//            val newAdmin = Admin(
-//                name = name,
-//                email = email,
-//                password = password,
-//                address = address
-//            )
-//            // TODO: implement validation logic later
+            val newAdmin = Admin(
+                name = name,
+                email = email,
+                password = password,
+            )
+            // TODO: implement validation logic later
             scope.launch(Dispatchers.IO) {
-//                if (admin != null) {  // update an existing admin
-//                    newAdmin.id = admin.id
-//                    // Update admin in the database
-//                    AdminDAO().update(newAdmin) {
-//                        if (it) {
-//                            onRegisterClick()
-//                        }
-//                    }
-//                } else {  // register a new admin
-//                    AdminDAO().save(newAdmin) {
-//                        if (it) {
-//                            onRegisterClick()
-//                        }
-//                    }
-//                }
-
+                AdminDAO().saveAdmin(newAdmin, address) { success ->
+                    if (success) {
+                        onRegisterClick()
+                    }
+                }
             }
         }) {
             Text(text = if (admin != null) "Update" else "Register")

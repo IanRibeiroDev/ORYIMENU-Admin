@@ -84,8 +84,8 @@ class AdminDAO {
                     address = formattedAddress // Add the formatted address to Firestore
                 )
 
-                // Save admin data in Firestore under 'admins' collection
-                firestore.collection("admins").document(authResult.user!!.uid)
+                // Save admin data in Firestore under 'admin' collection
+                firestore.collection(dbEntityName).document(authResult.user!!.uid)
                     .set(adminData)
                     .addOnSuccessListener {
                         callback(true) // Call callback with true when operation succeeds
