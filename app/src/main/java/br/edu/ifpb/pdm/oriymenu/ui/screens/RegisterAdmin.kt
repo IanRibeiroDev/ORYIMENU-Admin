@@ -184,13 +184,13 @@ fun RegisterAdmin(
         Spacer(modifier = Modifier.height(6.dp))
 
         Button(onClick = {
-            val newAdmin = Admin(
-                name = name,
-                email = email,
-                password = password,
-                address = address
-            )
-            // TODO: implement validation logic later
+//            val newAdmin = Admin(
+//                name = name,
+//                email = email,
+//                password = password,
+//                address = address
+//            )
+//            // TODO: implement validation logic later
             scope.launch(Dispatchers.IO) {
 //                if (admin != null) {  // update an existing admin
 //                    newAdmin.id = admin.id
