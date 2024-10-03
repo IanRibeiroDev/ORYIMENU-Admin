@@ -99,4 +99,39 @@ class AdminDAO {
             }
     }
 
+    /**
+     * Authenticate an admin using email and password.
+     * @param email The admin's email.
+     * @param password The admin's password.
+     * @param callback Function that will receive a boolean indicating if authentication was successful.
+     */
+    fun authenticateAdmin(email: String, password: String, callback: (Boolean) -> Unit) {
+        val auth = FirebaseAuth.getInstance()
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                callback(true) // Authentication successful
+            }
+            .addOnFailureListener {
+                callback(false) // Authentication failed
+            }
+    }
+
+    /**
+     * Send a password reset email to the admin.
+     * @param email The email of the admin.
+     * @param callback Function that will receive a boolean indicating if the reset email was sent successfully.
+     */
+    fun sendPasswordResetEmail(email: String, callback: (Boolean) -> Unit) {
+        val auth = FirebaseAuth.getInstance()
+
+        auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                callback(true) // Reset email sent successfully
+            }
+            .addOnFailureListener {
+                callback(false) // Failed to send reset email
+            }
+    }
+    
 }
