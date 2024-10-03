@@ -1,4 +1,4 @@
-package br.edu.ifpb.pdm.oriymenu.ui.theme.components
+package br.edu.ifpb.pdm.oriymenu.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

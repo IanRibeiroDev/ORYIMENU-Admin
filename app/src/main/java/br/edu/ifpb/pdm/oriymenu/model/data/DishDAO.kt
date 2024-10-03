@@ -16,7 +16,7 @@ class DishDAO {
      * boolean indicating if the dish was saved
      */
     fun save(dish: Dish, callback: (Boolean) -> Unit) {
-        db.collection(dbEntityName).add(dish)
+        db.collection("dish").add(dish)
             .addOnSuccessListener {
                 callback(true)
             }
@@ -61,7 +61,7 @@ class DishDAO {
      * @param id the id of the dish
      * @param callback function that will receive the dish
      */
-    fun searchById(id: String, callback: (Dish?) -> Unit) {
+    fun findById(id: String, callback: (Dish?) -> Unit) {
         db.collection(dbEntityName).document(id).get()
             .addOnSuccessListener { document ->
                 val dish = document.toObject(Dish::class.java)
