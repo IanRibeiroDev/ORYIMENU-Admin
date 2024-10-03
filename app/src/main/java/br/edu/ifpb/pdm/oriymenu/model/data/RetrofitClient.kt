@@ -9,7 +9,7 @@ object RetrofitClient {
     // val - somente leitura
     private const val BASE_URL = "http://viacep.com.br/ws/"
 
-    val enderecoService: AddressIF by lazy {
+    val addressService: AddressIF by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())

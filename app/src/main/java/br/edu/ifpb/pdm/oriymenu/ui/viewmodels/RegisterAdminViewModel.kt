@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.ifpb.pdm.oriymenu.model.data.Address
-import br.edu.ifpb.pdm.oriymenu.model.data.AddressIF
 import br.edu.ifpb.pdm.oriymenu.model.data.Admin
 import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.RetrofitClient
@@ -12,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RegisterAdminViewModel : ViewModel() {
     private val _name = MutableStateFlow("")
@@ -92,7 +90,7 @@ class RegisterAdminViewModel : ViewModel() {
     fun fetchAddress() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val address = RetrofitClient.enderecoService.getAddress(_zipCode.value)
+                val address = RetrofitClient.addressService.getAddress(_zipCode.value)
                 _address.value = address
             } catch (e: Exception) {
                 // Handle the error appropriately
