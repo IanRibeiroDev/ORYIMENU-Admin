@@ -1,9 +1,15 @@
 package br.edu.ifpb.pdm.oriymenu.model.data
 
 data class Address(
-    var zipCode: String = "",  // cep
-    var street: String = "",  // logradouro
-    var number: String = "",  // numero
-    var city: String = "",  // localidade
-    var state: String = "",  // uf
+    val cep: String = "",
+    val logradouro: String = "",
+    val complemento: String = "",
+    val unidade: String = "",
+    val bairro: String = "",
+    val localidade: String = "",
+    val uf: String = "",
+    val ibge: String = "",
+    val gia: String = "",
+    val ddd: String = "",
+    val siafi: String = ""
 )

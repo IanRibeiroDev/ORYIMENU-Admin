@@ -56,7 +56,7 @@ class AdminDAO {
      * Output: "123 Main St, Downtown, Springfield, IL - 62704"
      */
     private fun formatAdminAddress(address: Address): String {
-        return "${address.number} ${address.street}, ${address.city}, ${address.state} - ${address.zipCode}"
+        return "${address.complemento} ${address.logradouro}, ${address.localidade}, ${address.uf} - ${address.cep}"
     }
 
 

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.ifpb.pdm.oriymenu.model.data.Address
+import br.edu.ifpb.pdm.oriymenu.model.data.AddressIF
 import br.edu.ifpb.pdm.oriymenu.model.data.Admin
 import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.RetrofitClient
@@ -22,6 +23,9 @@ class RegisterAdminViewModel : ViewModel() {
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> get() = _password
 
+    private val _address = MutableStateFlow(Address())
+    val address: StateFlow<Address> get() = _address
+
     private val _zipCode = MutableStateFlow("")
     val zipCode: StateFlow<String> get() = _zipCode
 
@@ -36,9 +40,6 @@ class RegisterAdminViewModel : ViewModel() {
 
     private val _state = MutableStateFlow("")
     val state: StateFlow<String> get() = _state
-
-    private val _address = MutableStateFlow<Address?>(Address())
-    val address: StateFlow<Address?> get() = _address
 
     fun updateName(newName: String) {
         _name.value = newName
@@ -91,11 +92,12 @@ class RegisterAdminViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val address = RetrofitClient.addressService.getAddress(_zipCode.value)
+                Log.d("ENDERECO -> " , address.toString())
                 _address.value = address
             } catch (e: Exception) {
                 // Handle the error appropriately
                 Log.e("RegisterAdminViewModel", "Error fetching address: ${e.message}")
-                _address.value = null
+                _address.value = Address()
             }
         }
     }

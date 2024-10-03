@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,7 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.edu.ifpb.pdm.oriymenu.model.data.Admin
+import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
 import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.RegisterAdminViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterAdmin(
@@ -132,7 +136,7 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = street,
+            value = address.logradouro,
             onValueChange = { registerAdminViewModel.updateStreet(it) },
             label = { Text(text = "Logradouro") },
             placeholder = { Text(text = "Digite o seu logradouro") },
@@ -142,7 +146,7 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = number,
+            value = address.complemento,
             onValueChange = { registerAdminViewModel.updateNumber(it) },
             label = { Text(text = "Número") },
             placeholder = { Text(text = "Digite o número do seu logradouro") },
@@ -153,7 +157,7 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = city,
+            value = address.localidade,
             onValueChange = { registerAdminViewModel.updateCity(it) },
             label = { Text(text = "Cidade") },
             placeholder = { Text(text = "Digite o nome da sua cidade") },
@@ -164,7 +168,7 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = state,
+            value = address.uf,
             onValueChange = {
                 // Restrict to letters and limit to 2 characters
                 if (it.all { char -> char.isLetter() } &&
@@ -175,20 +179,19 @@ fun RegisterAdmin(
             label = { Text(text = "Estado") },
             placeholder = { Text(text = "Digite a sigla do seu estado") },
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Spacer(modifier = Modifier.height(6.dp))
 
-//        Button(onClick = {
-//            val newAdmin = Admin(
-//                name = name,
-//                email = email,
-//                password = password,
-//                address = address
-//            )
-//            // TODO: implement validation logic later
-//            scope.launch(Dispatchers.IO) {
+        Button(onClick = {
+            val newAdmin = Admin(
+                name = name,
+                email = email,
+                password = password,
+                address = address
+            )
+            // TODO: implement validation logic later
+            scope.launch(Dispatchers.IO) {
 //                if (admin != null) {  // update an existing admin
 //                    newAdmin.id = admin.id
 //                    // Update admin in the database
@@ -204,10 +207,11 @@ fun RegisterAdmin(
 //                        }
 //                    }
 //                }
-//            }
-//        }) {
-//            Text(text = if (admin != null) "Update" else "Register")
-//        }
+
+            }
+        }) {
+            Text(text = if (admin != null) "Update" else "Register")
+        }
 
         OutlinedButton(onClick = { onGoBackButton() }) {
             Text(text = "Back")
