@@ -84,7 +84,6 @@ fun LoginScreen(
                             })
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(0.8f),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(text = "Entrar", color = Color.White)
@@ -96,7 +95,6 @@ fun LoginScreen(
                     onClick = {
                         onSignUpClick()
                     },
-                    modifier = Modifier.fillMaxWidth(0.8f),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
                     Text(text = "Cadastrar", color = Color.White)

@@ -1,5 +1,6 @@
 package br.edu.ifpb.pdm.oriymenu
 
+import RegisterDish
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,10 +33,7 @@ import br.edu.ifpb.pdm.oriymenu.model.data.Dish
 import br.edu.ifpb.pdm.oriymenu.ui.screens.HomeScreen
 import br.edu.ifpb.pdm.oriymenu.ui.screens.LoginScreen
 import br.edu.ifpb.pdm.oriymenu.ui.screens.RegisterAdmin
-import br.edu.ifpb.pdm.oriymenu.ui.screens.RegisterDish
-import androidx.activity.viewModels
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
-import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.RegisterDishViewModel
 import com.google.gson.Gson
 
 
@@ -148,7 +146,8 @@ fun MainApp() {
                     onGoBackButton = {
                         navController.popBackStack()
                     },
-                    navController = navController
+                    navController = navController,
+                    registerAdminViewModel = viewModel()
                 )
             }
         }

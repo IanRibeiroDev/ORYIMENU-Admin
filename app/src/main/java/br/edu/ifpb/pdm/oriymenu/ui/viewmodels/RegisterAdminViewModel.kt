@@ -1,8 +1,10 @@
 package br.edu.ifpb.pdm.oriymenu.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.ifpb.pdm.oriymenu.model.data.Address
+import br.edu.ifpb.pdm.oriymenu.model.data.AddressIF
 import br.edu.ifpb.pdm.oriymenu.model.data.Admin
 import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
 import br.edu.ifpb.pdm.oriymenu.model.data.RetrofitClient
@@ -10,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegisterAdminViewModel : ViewModel() {
     private val _name = MutableStateFlow("")
@@ -23,6 +26,18 @@ class RegisterAdminViewModel : ViewModel() {
 
     private val _zipCode = MutableStateFlow("")
     val zipCode: StateFlow<String> get() = _zipCode
+
+    private val _street = MutableStateFlow("")
+    val street: StateFlow<String> get() = _street
+
+    private val _number = MutableStateFlow("")
+    val number: StateFlow<String> get() = _number
+
+    private val _city = MutableStateFlow("")
+    val city: StateFlow<String> get() = _city
+
+    private val _state = MutableStateFlow("")
+    val state: StateFlow<String> get() = _state
 
     private val _address = MutableStateFlow<Address?>(Address())
     val address: StateFlow<Address?> get() = _address
@@ -39,48 +54,24 @@ class RegisterAdminViewModel : ViewModel() {
         _password.value = newPassword
     }
 
-//    fun updateZipCode(newZipCode: String) {
-//        _zipCode.value = newZipCode
-//    }
-
-//    fun updateZipCode(newZipCode: String) {
-//        _address.value?.zipCode = newZipCode
-//    }
-//
-//    fun updateAddressStreet(newStreet: String) {
-//        _address.value?.street = newStreet
-//    }
-//
-//    fun updateAddressNumber(newNumber: String) {
-//        _address.value?.number = newNumber
-//    }
-//
-//    fun updateAddressCity(newCity: String) {
-//        _address.value?.city = newCity
-//    }
-//
-//    fun updateAddressState(newState: String) {
-//        _address.value?.state = newState
-//    }
-
-    fun updateZipCode(zipCode: String) {
-        _address.value = _address.value?.copy(zipCode = zipCode) ?: Address(zipCode = zipCode)
+    fun updateZipCode(newZipCode: String) {
+        _zipCode.value = newZipCode
     }
 
-    fun updateAddressStreet(street: String) {
-        _address.value = _address.value?.copy(street = street) ?: Address(street = street)
+    fun updateStreet(newStreet: String) {
+        _street.value = newStreet
     }
 
-    fun updateAddressNumber(number: String) {
-        _address.value = _address.value?.copy(number = number) ?: Address(number = number)
+    fun updateNumber(newNumber: String) {
+        _number.value = newNumber
     }
 
-    fun updateAddressCity(city: String) {
-        _address.value = _address.value?.copy(city = city) ?: Address(city = city)
+    fun updateCity(newCity: String) {
+        _city.value = newCity
     }
 
-    fun updateAddressState(state: String) {
-        _address.value = _address.value?.copy(state = state) ?: Address(state = state)
+    fun updateState(newState: String) {
+        _state.value = newState
     }
 
     // Function to save or update an admin
@@ -105,6 +96,7 @@ class RegisterAdminViewModel : ViewModel() {
                 _address.value = address
             } catch (e: Exception) {
                 // Handle the error appropriately
+                Log.e("RegisterAdminViewModel", "Error fetching address: ${e.message}")
                 _address.value = null
             }
         }

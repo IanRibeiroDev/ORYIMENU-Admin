@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import br.edu.ifpb.pdm.oriymenu.model.data.Admin
-import br.edu.ifpb.pdm.oriymenu.model.data.AdminDAO
 import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.RegisterAdminViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +36,7 @@ import kotlinx.coroutines.launch
 fun RegisterAdmin(
     modifier: Modifier = Modifier,
     admin: Admin? = null,
-    registerAdminViewModel: RegisterAdminViewModel = viewModel(),
+    registerAdminViewModel: RegisterAdminViewModel,
     onRegisterClick: () -> Unit,
     onGoBackButton: () -> Unit,
     navController: NavController
@@ -47,9 +45,18 @@ fun RegisterAdmin(
     val name by registerAdminViewModel.name.collectAsState()
     val email by registerAdminViewModel.email.collectAsState()
     val password by registerAdminViewModel.password.collectAsState()
+
+    // Address information
+    val zipCode by registerAdminViewModel.zipCode.collectAsState()
+    val street by registerAdminViewModel.street.collectAsState()
+    val number by registerAdminViewModel.number.collectAsState()
+    val city by registerAdminViewModel.city.collectAsState()
+    val state by registerAdminViewModel.state.collectAsState()
+
     val address by registerAdminViewModel.address.collectAsState()
 
     val scope = rememberCoroutineScope()
+
     val fieldSize = 300.dp
     val zipCodeNumberOfDigits = 8
     val stateAbbreviationNumberOfChars = 2
@@ -108,13 +115,11 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address?.zipCode ?: "",
+            value = zipCode,
             onValueChange = {
                 // Restrict to digits and limit to 8 characters
-                Log.d("ZIP CODE BEFORE IF", it)
                 if (it.all { char -> char.isDigit() } && it.length <= zipCodeNumberOfDigits) {
                     registerAdminViewModel.updateZipCode(it)
-                    Log.d("ZIP CODE ONCHANGE", it)
 
                     // Perform query when input length reaches 8 (number of digits in a Brazilian
                     // CEP)
@@ -131,8 +136,8 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address?.street ?: "",
-            onValueChange = { registerAdminViewModel.updateAddressStreet(it) },
+            value = street,
+            onValueChange = { registerAdminViewModel.updateStreet(it) },
             label = { Text(text = "Logradouro") },
             placeholder = { Text(text = "Digite o seu logradouro") },
             singleLine = true,
@@ -141,8 +146,8 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address?.number ?: "",
-            onValueChange = { registerAdminViewModel.updateAddressNumber(it) },
+            value = number,
+            onValueChange = { registerAdminViewModel.updateNumber(it) },
             label = { Text(text = "Número") },
             placeholder = { Text(text = "Digite o número do seu logradouro") },
             singleLine = true,
@@ -152,8 +157,8 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address?.city ?: "",
-            onValueChange = { registerAdminViewModel.updateAddressCity(it) },
+            value = city,
+            onValueChange = { registerAdminViewModel.updateCity(it) },
             label = { Text(text = "Cidade") },
             placeholder = { Text(text = "Digite o nome da sua cidade") },
             singleLine = true,
@@ -163,12 +168,12 @@ fun RegisterAdmin(
 
         OutlinedTextField(
             modifier = Modifier.width(fieldSize),
-            value = address?.state ?: "",
+            value = state,
             onValueChange = {
                 // Restrict to letters and limit to 2 characters
                 if (it.all { char -> char.isLetter() } &&
                     it.length <= stateAbbreviationNumberOfChars) {
-                    registerAdminViewModel.updateAddressState(it)
+                    registerAdminViewModel.updateState(it)
                 }
             },
             label = { Text(text = "Estado") },
