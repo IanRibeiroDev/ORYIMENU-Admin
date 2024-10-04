@@ -75,13 +75,20 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         scope.launch(Dispatchers.IO) {
-                            adminDAO.findByEmail(username, callback = { admin ->
-                                if (admin != null && admin.password == password) {
+//                            adminDAO.findByEmail(username, callback = { admin ->
+//                                if (admin != null && admin.password == password) {
+//                                    onSignInClick()
+//                                } else {
+//                                    errorMessage = "Login ou Senha inválidos!"
+//                                }
+//                            })
+                            adminDAO.authenticateAdmin(username, password) { admin ->
+                                if (admin != null) {
                                     onSignInClick()
                                 } else {
                                     errorMessage = "Login ou Senha inválidos!"
                                 }
-                            })
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
