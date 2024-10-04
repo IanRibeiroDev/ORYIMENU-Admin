@@ -1,5 +1,6 @@
 package br.edu.ifpb.pdm.oriymenu.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -51,93 +53,118 @@ fun DishCard(
 
     val namesOfDaysOfWeek = menuViewModel.namesOfDaysOfWeek
 
-    LazyColumn {
-        items(dishes) { dish ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                )
+    if (dishes.isEmpty()) {
+        // Exibe a mensagem de "Sem pratos disponíveis" quando a lista estiver vazia
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info, // Ícone de informação
+                contentDescription = "Sem pratos disponíveis",
+                tint = MaterialTheme.colorScheme.primary, // Cor do ícone
+                modifier = Modifier.size(64.dp) // Tamanho do ícone
             )
-            {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    AsyncImage(
-                        model = dish.pathToImage,
-                        contentDescription = dish.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = dish.name, style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = dish.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(modifier = Modifier
+            Spacer(modifier = Modifier.height(16.dp)) // Espaço entre ícone e texto
+            Text(
+                text = "Não há pratos disponíveis para este dia.",
+                style = MaterialTheme.typography.bodyLarge, // Estilo do texto
+                color = MaterialTheme.colorScheme.onSurface // Cor do texto
+            )
+        }
+    } else {
+        LazyColumn {
+            items(dishes) { dish ->
+                Card(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp)
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 4.dp
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row {
-                        OutlinedButton(onClick = {
-                            // JSON logic to pass the dish object as a string to the RegisterDish screen
-                            val selectedDish = Gson().toJson(dish)
+                )
+                {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        AsyncImage(
+                            model = dish.pathToImage,
+                            contentDescription = dish.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = dish.name, style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = dish.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        HorizontalDivider(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row {
+                            OutlinedButton(onClick = {
+                                // JSON logic to pass the dish object as a string to the RegisterDish screen
+                                val selectedDish = Gson().toJson(dish)
 //                            registerDishViewModel.updateSelectedDayOfWeek(
 //                                namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value]
 //                            )
-                            onEditDishClick(selectedDish)
-                        }) {
-                            Text(text = "Editar")
-                            Icon(
-                                Icons.Default.Edit,
-                                contentDescription = "Editar"
-                            )
-                        }
-                        Spacer(modifier = Modifier.size(4.dp))
-                        OutlinedButton(onClick = {
-                            menuViewModel.setOpenAlertDialog(true)
-                        }) {
-                            Text(text = "Excluir")
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Excluir"
-                            )
+                                onEditDishClick(selectedDish)
+                            }) {
+                                Text(text = "Editar")
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Editar"
+                                )
+                            }
+                            Spacer(modifier = Modifier.size(4.dp))
+                            OutlinedButton(onClick = {
+                                menuViewModel.setOpenAlertDialog(true)
+                            }) {
+                                Text(text = "Excluir")
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Excluir"
+                                )
+                            }
                         }
                     }
                 }
-            }
-            when {
-                openAlertDialog -> {
-                    AlertDialogComponent(
-                        onDismissRequest = { menuViewModel.setOpenAlertDialog(false) },
-                        onConfirmation = {
-                            menuViewModel.setOpenAlertDialog(false)
-                            scope.launch(Dispatchers.IO) {
-                                // Remove the dish from the day of the week
-                                menuViewModel.removeDishFromDayOfWeek(
-                                    namesOfDaysOfWeek[
-                                        menuViewModel.selectedDayIndex.value], dish)
-                            }
-                        },
-                        dialogTitle = "Remoção de prato",
-                        dialogText = "Você tem certeza que deseja remover o prato?",
-                        icon = Icons.Default.Info
-                    )
+                when {
+                    openAlertDialog -> {
+                        AlertDialogComponent(
+                            onDismissRequest = { menuViewModel.setOpenAlertDialog(false) },
+                            onConfirmation = {
+                                menuViewModel.setOpenAlertDialog(false)
+                                scope.launch(Dispatchers.IO) {
+                                    // Remove the dish from the day of the week
+                                    menuViewModel.removeDishFromDayOfWeek(
+                                        namesOfDaysOfWeek[
+                                            menuViewModel.selectedDayIndex.value], dish)
+                                }
+                            },
+                            dialogTitle = "Remoção de prato",
+                            dialogText = "Você tem certeza que deseja remover o prato?",
+                            icon = Icons.Default.Info
+                        )
+                    }
                 }
             }
         }
     }
+
 }

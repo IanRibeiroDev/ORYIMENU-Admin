@@ -92,16 +92,20 @@ class MenuViewModel(
 
                     // Iterate through the list of dish references
                     for (dishRef in returnedDayOfWeek.dishes) {
-                        dishDAO.findById(dishRef) { dish ->
-                            if (dish != null && (mealType == null || dish.meal == mealType)) {
-                                returnedDishes.add(dish)
-                            }
+                        if (dishRef != "") {
+                            dishDAO.findById(dishRef) { dish ->
+                                if (dish != null && (mealType == null || dish.meal == mealType)) {
+                                    returnedDishes.add(dish)
+                                }
 
-                            // Increment the counter and if all dishes are fetched, update the state
-                            dishesFetched++
-                            if (dishesFetched == totalDishes) {
-                                _dishes.value = returnedDishes
+                                // Increment the counter and if all dishes are fetched, update the state
+                                dishesFetched++
+                                if (dishesFetched == totalDishes) {
+                                    _dishes.value = returnedDishes
+                                }
                             }
+                        } else {
+                            _dishes.value = emptyList()
                         }
                     }
                 }

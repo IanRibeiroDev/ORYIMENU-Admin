@@ -170,7 +170,7 @@ fun MainApp(
  */
 private fun checkIfBottomBarShouldBeDisplayed(currentDestination: String?): Boolean {
     return when (currentDestination) {
-        "login" -> false
+        "login", "registerAdmin" -> false
         else -> true
     }
 }
