@@ -1,4 +1,4 @@
-# Sistema de Gestão de Cardápio - Aplicação do Administrador
+# ORIY MENU ADMIN - Aplicação do Administrador
 
 Esta é uma aplicação voltada para administradores de restaurantes, permitindo o gerenciamento dos pratos e cardápios. Através dela, o administrador pode cadastrar, editar e remover pratos, além de organizar cardápios de forma fácil e eficiente.
 
