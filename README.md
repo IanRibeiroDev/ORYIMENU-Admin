@@ -15,7 +15,6 @@ Esta é uma aplicação voltada para administradores de restaurantes, permitindo
 - **Firebase**: Backend serverless para gerenciamento de dados e imagens.
     - **Firebase Authentication**: Autenticação segura para administradores.
     - **Firebase Realtime Database**: Armazenamento e gerenciamento dos pratos e cardápios.
-    - **Firebase Storage**: Armazenamento das imagens dos pratos.
 - **MVVM (Model-View-ViewModel)**: Arquitetura para garantir a separação de responsabilidades e facilitar a manutenção.
 
 ## Repositório integrado
