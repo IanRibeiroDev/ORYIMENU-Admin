@@ -1,19 +1,14 @@
 package br.edu.ifpb.pdm.oriymenu
 
+import RegisterDish
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,11 +30,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.edu.ifpb.pdm.oriymenu.model.data.Dish
+import br.edu.ifpb.pdm.oriymenu.ui.screens.HomeScreen
+import br.edu.ifpb.pdm.oriymenu.ui.screens.LoginScreen
+import br.edu.ifpb.pdm.oriymenu.ui.screens.RegisterAdmin
 import br.edu.ifpb.pdm.oriymenu.ui.theme.OriymenuTheme
-import br.edu.ifpb.pdm.oriymenu.ui.theme.components.IconButtonWithText
-import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.HomeScreen
-import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.LoginScreen
-import br.edu.ifpb.pdm.oriymenu.ui.theme.screens.RegisterDish
+import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.MenuViewModel
 import com.google.gson.Gson
 
 
@@ -47,8 +43,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val menuViewModel: MenuViewModel = viewModel()
             OriymenuTheme {
-                MainApp()
+                MainApp(menuViewModel)
             }
         }
     }
@@ -56,7 +53,9 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainApp() {
+fun MainApp(
+    menuViewModel: MenuViewModel
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -91,14 +90,23 @@ fun MainApp() {
 
         NavHost(navController = navController, startDestination = "login") {
             composable("login") {
-                LoginScreen(onSignInClick = {
-                    navigateToHome()
-                })
+                LoginScreen(
+                    onSignInClick = {
+                        navigateToHome()
+                    },
+                    onSignUpClick = {
+                        navController.navigate("registerAdmin")
+                    }
+                )
             }
             composable("home") {
-                HomeScreen(modifier = Modifier.padding(innerPadding), onEditDishClick = { dish ->
-                    navController.navigate("registerDish?dish=$dish")
-                })
+                HomeScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    onEditDishClick = { dish ->
+                        navController.navigate("registerDish?dish=$dish")
+                    },
+                    menuViewModel = menuViewModel
+                )
             }
             composable("registerDish") {
                 RegisterDish(
@@ -109,7 +117,7 @@ fun MainApp() {
                     onGoBackButton = {
                         navigateToHome()
                     },
-                    navController = navController
+                    menuViewModel = menuViewModel
                 )
             }
             // This whole JSON logic is used to pass the dish object as a string to the RegisterDish screen
@@ -128,14 +136,28 @@ fun MainApp() {
                 val dish = Gson().fromJson(dishJsonString, Dish::class.java)
                 RegisterDish(
                     modifier = Modifier.padding(innerPadding),
-                    navController = navController,
                     dish = dish,
                     onRegisterClick = {
                         navigateToHome()
                     },
                     onGoBackButton = {
                         navigateToHome()
-                    })
+                    },
+                    menuViewModel = menuViewModel
+                )
+            }
+            composable("registerAdmin") {
+                RegisterAdmin(
+                    modifier = Modifier.padding(innerPadding),
+                    onRegisterClick = {
+                        navigateToHome()
+                    },
+                    onGoBackButton = {
+                        navController.popBackStack()
+                    },
+                    navController = navController,
+                    registerAdminViewModel = viewModel()
+                )
             }
         }
     }
@@ -148,7 +170,7 @@ fun MainApp() {
  */
 private fun checkIfBottomBarShouldBeDisplayed(currentDestination: String?): Boolean {
     return when (currentDestination) {
-        "login" -> false
+        "login", "registerAdmin" -> false
         else -> true
     }
 }
@@ -157,6 +179,6 @@ private fun checkIfBottomBarShouldBeDisplayed(currentDestination: String?): Bool
 @Composable
 fun MainAppPreview() {
     OriymenuTheme {
-        MainApp()
+//        MainApp(menuViewModel = viewModel())
     }
 }

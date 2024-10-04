@@ -1,4 +1,4 @@
-package br.edu.ifpb.pdm.oriymenu.ui.theme.screens
+package br.edu.ifpb.pdm.oriymenu.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,7 +19,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(onSignInClick: () -> Unit) {
+fun LoginScreen(
+    onSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -68,22 +71,41 @@ fun LoginScreen(onSignInClick: () -> Unit) {
                     .fillMaxWidth(0.8f)
                     .padding(bottom = 16.dp)
             )
-            Button(
-                onClick = {
-                    scope.launch(Dispatchers.IO) {
-                        adminDAO.findByEmail(username, callback = { admin ->
-                            if (admin != null && admin.password == password) {
-                                onSignInClick()
-                            } else {
-                                errorMessage = "Login ou Senha inválidos!"
+            Row {
+                Button(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+//                            adminDAO.findByEmail(username, callback = { admin ->
+//                                if (admin != null && admin.password == password) {
+//                                    onSignInClick()
+//                                } else {
+//                                    errorMessage = "Login ou Senha inválidos!"
+//                                }
+//                            })
+                            adminDAO.authenticateAdmin(username, password) { admin ->
+                                if (admin != null) {
+                                    onSignInClick()
+                                } else {
+                                    errorMessage = "Login ou Senha inválidos!"
+                                }
                             }
-                        })
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(0.8f),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Text(text = "Entrar", color = Color.White)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Entrar", color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        onSignUpClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text(text = "Cadastrar", color = Color.White)
+                }
             }
             errorMessage?.let {
                 Text(

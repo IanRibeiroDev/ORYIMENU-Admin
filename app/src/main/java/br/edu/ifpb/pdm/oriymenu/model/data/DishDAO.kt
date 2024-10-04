@@ -1,6 +1,7 @@
 package br.edu.ifpb.pdm.oriymenu.model.data
 
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObjects
 
@@ -15,15 +16,34 @@ class DishDAO {
      * @param callback function that will receive a
      * boolean indicating if the dish was saved
      */
-    fun save(dish: Dish, callback: (Boolean) -> Unit) {
+//    fun save(dish: Dish, callback: (Boolean) -> Unit) {
+//        db.collection("dish").add(dish)
+//            .addOnSuccessListener {
+//                callback(true)
+//            }
+//            .addOnFailureListener {
+//                callback(false)
+//            }
+//    }
+
+    /**
+     * Save a new dish in the database
+     * @param dish the dish to be saved
+     * @param callback function that will receive the DocumentReference of the saved dish
+     */
+    fun save(dish: Dish, callback: (DocumentReference?) -> Unit) {
+        // Adiciona um novo documento sem especificar o ID
         db.collection(dbEntityName).add(dish)
-            .addOnSuccessListener {
-                callback(true)
+            .addOnSuccessListener { documentReference ->
+                // Retorna a referência do documento (contendo o ID gerado)
+                callback(documentReference)
             }
             .addOnFailureListener {
-                callback(false)
+                // Retorna null em caso de erro
+                callback(null)
             }
     }
+
 
     /**
      * Update a dish in the database
@@ -61,7 +81,7 @@ class DishDAO {
      * @param id the id of the dish
      * @param callback function that will receive the dish
      */
-    fun searchById(id: String, callback: (Dish?) -> Unit) {
+    fun findById(id: String, callback: (Dish?) -> Unit) {
         db.collection(dbEntityName).document(id).get()
             .addOnSuccessListener { document ->
                 val dish = document.toObject(Dish::class.java)
