@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 fun DishCard(
     dishes: List<Dish>,
     menuViewModel: MenuViewModel = viewModel(),
-    registerDishViewModel: RegisterDishViewModel = viewModel(),
+//    registerDishViewModel: RegisterDishViewModel = viewModel(),
     onEditDishClick: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -95,9 +95,9 @@ fun DishCard(
                         OutlinedButton(onClick = {
                             // JSON logic to pass the dish object as a string to the RegisterDish screen
                             val selectedDish = Gson().toJson(dish)
-                            registerDishViewModel.updateSelectedDayOfWeek(
-                                namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value]
-                            )
+//                            registerDishViewModel.updateSelectedDayOfWeek(
+//                                namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value]
+//                            )
                             onEditDishClick(selectedDish)
                         }) {
                             Text(text = "Editar")

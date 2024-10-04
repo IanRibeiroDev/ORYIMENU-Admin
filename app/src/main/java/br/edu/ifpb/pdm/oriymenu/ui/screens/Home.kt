@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.ifpb.pdm.oriymenu.ui.components.DishCard
 import br.edu.ifpb.pdm.oriymenu.ui.components.SelectComponent
 import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.MenuViewModel
+import br.edu.ifpb.pdm.oriymenu.ui.viewmodels.RegisterDishViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -70,11 +71,11 @@ fun HomeScreen(
                     onCollapseDropDown = { menuViewModel.collapseMealDropdown() },
                     currentElementIndex = menuViewModel.selectedMealIndex,
                     onSelect = { index ->
+                        menuViewModel.changeSelectedMealIndex(index)
+                        val selectedDay = namesOfDaysOfWeek[
+                            menuViewModel.selectedDayIndex.value]
                         scope.launch(Dispatchers.IO) {
                             // Fetch dishes by selected day and meal type
-                            menuViewModel.changeSelectedMealIndex(index)
-                            val selectedDay = namesOfDaysOfWeek[
-                                menuViewModel.selectedDayIndex.value]
                             menuViewModel.fetchByDayOfWeekAndMeal(selectedDay, mealTypes[index])
                         }
                     })
