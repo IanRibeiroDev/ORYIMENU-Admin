@@ -87,8 +87,14 @@ fun HomeScreen(
         DishCard(dishes = dishes, onEditDishClick = onEditDishClick, menuViewModel = menuViewModel)
         Spacer(modifier = Modifier.height(16.dp))
 
+//        LaunchedEffect(scope) {
+//            menuViewModel.fetchByDayOfWeek(namesOfDaysOfWeek[0])
+//        }
         LaunchedEffect(scope) {
-            menuViewModel.fetchByDayOfWeek(namesOfDaysOfWeek[0])
+            menuViewModel.fetchByDayOfWeekAndMeal(
+                namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value],
+                mealTypes[menuViewModel.selectedMealIndex.value]
+            )
         }
     }
 }
