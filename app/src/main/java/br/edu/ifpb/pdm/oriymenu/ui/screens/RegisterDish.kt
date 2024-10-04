@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +49,7 @@ fun RegisterDish(
     var description by remember { mutableStateOf(dish?.description ?: "") }
     var meal by remember { mutableStateOf(dish?.meal ?: "") }
     var pathToImage by remember { mutableStateOf(dish?.pathToImage ?: "") }
+    val selectedDay by remember { mutableIntStateOf(menuViewModel.selectedDayIndex.value) }
 
     val namesOfDaysOfWeek = menuViewModel.namesOfDaysOfWeek
     val mealTypes = menuViewModel.mealTypes  // 0 -> breakfast, 1 -> lunch
@@ -157,13 +159,43 @@ fun RegisterDish(
                 if (dish != null) {  // update an existing dish
                     newDish.id = dish.id
 
-                scope.launch(Dispatchers.IO) {
-                    DishDAO().update(dish = newDish, callback = {
-                        if (it) {  // If the dish was successfully updated
-                            onRegisterClick()
-                        }
-                    })
-                }
+                    scope.launch(Dispatchers.IO) {
+                        DishDAO().update(dish = newDish, callback = { success ->
+                            if (success) {  // Se o prato foi atualizado com sucesso
+                                // Verifica se o dia foi alterado
+                                if (selectedDay != menuViewModel.selectedDayIndex.value) {
+                                    val weekDayDAO = WeekDayDAO()
+                                    // Remover prato do dia anterior
+                                    weekDayDAO.findByDayOfWeek(namesOfDaysOfWeek[selectedDay]) { oldDay ->
+                                        oldDay?.let {
+                                            val updatedDishes = it.dishes.toMutableList().apply {
+                                                remove(dish.id)
+                                            }
+                                            val updatedOldDay = it.copy(dishes = updatedDishes)
+                                            weekDayDAO.update(updatedOldDay) { weekDay ->
+                                                if (weekDay != null) {
+                                                    // Adicionar prato ao novo dia
+                                                    weekDayDAO.findByDayOfWeek(namesOfDaysOfWeek[menuViewModel.selectedDayIndex.value]) { newDay ->
+                                                        newDay?.let { nd ->
+                                                            val newDishes = nd.dishes.toMutableList().apply {
+                                                                add(dish.id)
+                                                            }
+                                                            val updatedNewDay = nd.copy(dishes = newDishes)
+                                                            weekDayDAO.update(updatedNewDay) {
+                                                                onRegisterClick()
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    onRegisterClick() // Se o dia não foi alterado, finaliza a ação
+                                }
+                            }
+                        })
+                    }
             } else {  // insert a new dish
 
                 val weekDayDAO = WeekDayDAO()
