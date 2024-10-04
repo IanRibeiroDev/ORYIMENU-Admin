@@ -84,7 +84,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        DishCard(dishes = dishes, onEditDishClick = onEditDishClick)
+        DishCard(dishes = dishes, onEditDishClick = onEditDishClick, menuViewModel = menuViewModel)
         Spacer(modifier = Modifier.height(16.dp))
 
         LaunchedEffect(scope) {
